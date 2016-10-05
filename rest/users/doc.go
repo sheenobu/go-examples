@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"html/template"
+	"io"
 	"net/http"
 	"time"
 
@@ -39,9 +40,14 @@ func userDocumentation(w http.ResponseWriter, r *http.Request, _ httprouter.Para
 
 	m["sampleUser"] = string(out.String())
 
-	if err := userDocTemplate.Execute(w, m); err != nil {
+	var tmp bytes.Buffer
+
+	if err := userDocTemplate.Execute(&tmp, m); err != nil {
 		sendError(w, r, err)
+		return
 	}
+
+	io.Copy(w, &tmp)
 }
 
 var t = `
